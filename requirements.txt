@@ -1,4 +1,17 @@
 autopep8==1.6.0
+certifi==2022.6.15
+cffi==1.15.1
+charset-normalizer==2.1.0
+daemonize==2.5.0
+Deprecated==1.2.13
+idna==3.3
 pycodestyle==2.8.0
+pycparser==2.21
+PyGithub==1.55
+PyJWT==2.4.0
+PyNaCl==1.5.0
 PyYAML==6.0
+requests==2.28.1
 toml==0.10.2
+urllib3==1.26.10
+wrapt==1.14.1

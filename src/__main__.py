@@ -1,42 +1,30 @@
 #!/usr/bin/env python
-from yaml import dump, load_all
+from daemonize import Daemonize
+from urllib.request import urlopen
+import json, time
 
+pid = "/tmp/ncsgitops-agent.pid"
+waitsec = 60 
+# unauth requests can only do 60 per hour 
+# https://developer.github.com/v3/#rate-limiting
 
-def terminal_size():
+def main():
+    commit=''
+    while True:
+        oldcommit=commit
+        commit = get_latest_commit('dentechnologies', 'nexus-container-server-gitops')        
+        if oldcommit != '' and commit != oldcommit:
+            print('***** NEW COMMIT ******')
+        print('last commit: %s' % commit['html_url'])
+        time.sleep(waitsec)
 
-    import fcntl
-    import termios
-    import struct
-    try:
-        th, tw, hp, wp = struct.unpack('HHHH',
-                                    fcntl.ioctl(0, termios.TIOCGWINSZ,
-                                                struct.pack('HHHH', 0, 0, 0, 0)))
-    except OSError:
-        th, tw, hp, wp = 25, 80, 0, 0
-    return tw, th
+def get_latest_commit(owner, repo):
+    url = 'https://api.github.com/repos/{owner}/{repo}/commits?per_page=1'.format(owner=owner, repo=repo)
+    response = urlopen(url).read()
+    data = json.loads(response.decode())
+    return data[0]
 
-
-def terminal_width():
-    width = terminal_size()[0]
-    return width
-
-
-def terminal_height():
-    height = terminal_size()[1]
-    return height
-
-
-def header_line():
-    print("=" * terminal_width())
-
-
-def center_text(s):
-    print(s.upper().center(terminal_width(), " "))
-
-
-header_line()
-center_text("nexus gitops agent")
-header_line()
-
-d = {"m":12345}
-print(dump(d, default_flow_style=False))
+if __name__ == '__main__':
+    #daemon = Daemonize(app="cidummy", pid=pid, action=main)
+    #daemon.start()
+    main()
